@@ -39,7 +39,34 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
         guard let password = passwordField.text else { return }
         guard let name = nameField.text else { return }
         
-        // YOUR CODE HERE
+        FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user, error) in
+            if (error != nil) {
+                let errCode = FIRAuthErrorNameKey
+                var msg = ""
+                
+                switch errCode {
+                case "FIRAuthErrorCodeEmailAlreadyInUse":
+                    msg = "That email is already being used!"
+                case "FIRAuthErrorCodeInvalidEmail":
+                    msg = "Invalid email address"
+                default:
+                    msg = "Error creating account: \(error)"
+                }
+                
+                let signupFailedAlert = UIAlertController(title: "Signup Failed", message: msg, preferredStyle: .alert)
+                self.present(signupFailedAlert, animated: true, completion: nil)
+            } else {
+                let changeRequest = user!.profileChangeRequest()
+                changeRequest.displayName = name
+                changeRequest.commitChanges(completion: { (err) in
+                    if (err != nil) {
+                        print("ERROR: Could not change display name")
+                    } else {
+                        self.performSegue(withIdentifier: "signupToMain", sender: sender)
+                    }
+                })
+            }
+        })
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
