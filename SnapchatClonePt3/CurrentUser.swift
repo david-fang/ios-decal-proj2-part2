@@ -33,18 +33,22 @@ class CurrentUser {
     */
     func getReadPostIDs(completion: @escaping ([String]) -> Void) {
         var postArray: [String] = []
+        
         // TODO
+        
+        completion(postArray)
     }
     
     /*
-        TODO:
-     
         Adds a new post ID to the list of post ID's under the user's readPosts node.
         This should be fairly simple - just create a new child by auto ID under the readPosts node and set its value to the postID (string).
         Remember to be very careful about following the structure of the User node before writing any data!
     */
     func addNewReadPost(postID: String) {
-        // TODO
+        if let user = FIRAuth.auth()?.currentUser {
+            let dbRef = FIRDatabase.database().reference()
+            let postItem = dbRef.child(user.uid).child(firReadPostsNode).childByAutoId()
+            postItem.setValue(postID)
+        }
     }
-    
 }
