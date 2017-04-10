@@ -41,19 +41,9 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
         
         FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user, error) in
             if (error != nil) {
-                let errCode = FIRAuthErrorNameKey
-                var msg = ""
-                
-                switch errCode {
-                case "FIRAuthErrorCodeEmailAlreadyInUse":
-                    msg = "That email is already being used!"
-                case "FIRAuthErrorCodeInvalidEmail":
-                    msg = "Invalid email address"
-                default:
-                    msg = "Error creating account: \(error)"
-                }
-                
-                let signupFailedAlert = UIAlertController(title: "Signup Failed", message: msg, preferredStyle: .alert)
+                let signupFailedAlert = UIAlertController(title: "Signup Failed", message: error?.localizedDescription, preferredStyle: .alert)
+                let cancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                signupFailedAlert.addAction(cancelAction)
                 self.present(signupFailedAlert, animated: true, completion: nil)
             } else {
                 let changeRequest = user!.profileChangeRequest()

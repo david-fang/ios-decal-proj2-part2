@@ -33,8 +33,20 @@ class CurrentUser {
     */
     func getReadPostIDs(completion: @escaping ([String]) -> Void) {
         var postArray: [String] = []
-        
-        // TODO
+        if let user = FIRAuth.auth()?.currentUser {
+            let dbRef = FIRDatabase.database().reference()
+            dbRef.child(user.uid).child(firReadPostsNode).observeSingleEvent(of: .value, with: { (snapshot) in
+                if snapshot.exists() {
+                    if let readPostDict = snapshot.value as? [String : AnyObject] {
+                        for (_, postID) in readPostDict {
+                            postArray.append(postID as! String)
+                        }
+                    }
+                }
+            }) { (error) in
+                print(error.localizedDescription)
+            }
+        }
         
         completion(postArray)
     }
