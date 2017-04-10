@@ -99,7 +99,50 @@ func getPosts(user: CurrentUser, completion: @escaping ([Post]?) -> Void) {
     let dbRef = FIRDatabase.database().reference()
     var postArray: [Post] = []
     
-    // YOUR CODE HERE
+    dbRef.child(firPostsNode).observeSingleEvent(of: .value, with: { (snapshot) in
+        if (snapshot.exists()) {
+            if let postsDict = snapshot.value as? [String : AnyObject] {
+                var readPostIDs = [String]()
+                user.getReadPostIDs(completion: { (readPosts: [String]) in
+                    readPostIDs = readPosts
+                })
+
+                // Iterate through all post objects with KEY as the postID
+                for (key, _) in postsDict {
+                    
+                    // Get the Post's fields
+                    dbRef.child(firPostsNode).child(key).observeSingleEvent(of: .value, with: { (snapshot) in
+                        
+                        if (!snapshot.exists()) {
+                            print("No snapshot exists for the post")
+                            completion(nil)
+                        }
+                        
+                        if let post = snapshot.value as? [String : AnyObject] {
+                            let username = post[firUsernameNode] as! String
+                            let postImagePath = post[firImagePathNode] as! String
+                            let thread = post[firThreadNode] as! String
+                            let date = post[firDateNode] as! String
+                            let newPost = Post(id: key, username: username, postImagePath: postImagePath, thread: thread, dateString: date, read: readPostIDs.contains(key))
+
+                            postArray.append(newPost)
+                        } else {
+                            print("No snapshot value found for the post")
+                            completion(nil)
+                        }
+                    })
+                }
+            } else {
+                print("Not snapshot value found for the Post node")
+                completion(nil)
+            }
+        } else {
+            print("No snapshot exists for the Post node")
+            completion(nil)
+        }
+    })
+    
+    completion(postArray)
 }
 
 func getDataFromPath(path: String, completion: @escaping (Data?) -> Void) {
