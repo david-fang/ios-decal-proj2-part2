@@ -59,8 +59,20 @@ func addPost(postImage: UIImage, thread: String, username: String) {
     let dbRef = FIRDatabase.database().reference()
     let data = UIImageJPEGRepresentation(postImage, 1.0)! 
     let path = "\(firStorageImagesPath)/\(UUID().uuidString)"
-    
-    // YOUR CODE HERE
+    let date = Date()
+    let formatter = DateFormatter()
+    formatter.dateFormat = dateFormat
+
+    let dict: [String: AnyObject] = [
+        firDateNode: formatter.string(from: date) as AnyObject,
+        firUsernameNode: username as AnyObject,
+        firImagePathNode: path as AnyObject,
+        firThreadNode: thread as AnyObject
+    ]
+
+    let postItem = dbRef.child(firPostsNode).childByAutoId()
+    postItem.setValue(dict)
+    store(data: data, toPath: path)
 }
 
 /*
@@ -73,8 +85,11 @@ func addPost(postImage: UIImage, thread: String, username: String) {
 */
 func store(data: Data, toPath path: String) {
     let storageRef = FIRStorage.storage().reference()
-    
-    // YOUR CODE HERE
+    storageRef.child(path).put(data, metadata: nil) { (metadata, error) in
+        if let error = error {
+            print(error.localizedDescription)
+        }
+    }
 }
 
 
