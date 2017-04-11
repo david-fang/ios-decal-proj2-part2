@@ -73,7 +73,6 @@ class PostsTableViewController: UIViewController, UITableViewDelegate, UITableVi
     func updateData() {
         getPosts(user: currentUser, completion: { (posts) in
             if let posts = posts {
-                print(posts)
                 clearThreads()
                 for post in posts {
                     addPostToThread(post: post)
@@ -84,10 +83,9 @@ class PostsTableViewController: UIViewController, UITableViewDelegate, UITableVi
                         }
                     })
                 }
+                self.postTableView.reloadData()
             }
         })
-
-        postTableView.reloadData()
     }
     
     // MARK: Custom methods (relating to UI)
@@ -106,7 +104,7 @@ class PostsTableViewController: UIViewController, UITableViewDelegate, UITableVi
             navigationController?.navigationBar.isHidden = true
             tabBarController?.tabBar.isHidden = true
         } else {
-            let hud = MBProgressHUD.showAdded(to: view, animated: true)
+            _ = MBProgressHUD.showAdded(to: view, animated: true)
             getDataFromPath(path: post.postImagePath, completion: { (data) in
                 if let data = data {
                     let image = UIImage(data: data)

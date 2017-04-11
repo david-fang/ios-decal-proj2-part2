@@ -44,6 +44,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         FIRAuth.auth()?.signIn(withEmail: emailText, password: passwordText, completion: { (user, error) in
             if (error != nil) {
+                
+                FIRAuth.auth()?.sendPasswordReset(withEmail: emailText) { error in
+                    // Your code here
+                }
+                
                 let loginFailAlert = UIAlertController(title: "Login Failed", message: error?.localizedDescription, preferredStyle: .alert)
                 let cancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
                 loginFailAlert.addAction(cancelAction)
